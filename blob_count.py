@@ -6,6 +6,12 @@ from skimage.feature import blob_dog
 from skimage.color import rgb2gray
 from skimage.draw import circle
 
+'''
+Original example from: 
+http://scikit-image.org/docs/dev/auto_examples/features_detection/plot_blob.html#sphx-glr-auto-examples-features-detection-plot-blob-py
+Difference of Gaussian (DoG) method is used to detetec the blobs. Blobs are assumed to be bright on dark.
+'''
+
 #Read image
 image = imread('barley.jpg')
 #Inverse the grayscale image
