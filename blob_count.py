@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage.io import imread 
+from cv2 import *
+from skimage.io import imread, imsave 
 from skimage import color
 from skimage.feature import blob_dog
 from skimage.color import rgb2gray
@@ -11,6 +12,12 @@ Original example from:
 http://scikit-image.org/docs/dev/auto_examples/features_detection/plot_blob.html#sphx-glr-auto-examples-features-detection-plot-blob-py
 Difference of Gaussian (DoG) method is used to detetec the blobs. Blobs are assumed to be bright on dark.
 '''
+#Capture an image from webcam
+# initialize the camera
+cam = VideoCapture(0)   # 0 -> index of camera
+s, img = cam.read()
+if s:
+    imsave('barley.jpg',img)
 
 #Read image
 image = imread('barley.jpg')
