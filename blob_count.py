@@ -1,12 +1,16 @@
 import sys
 #For plotting
+# matplotlib
 import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.backend_bases import key_press_handler
-matplotlib.use('TkAgg')
 #For math and image analysis
+# numpy
+# opencv
+# scikit-image
 import numpy as np
 from cv2 import *
 from skimage.io import imread, imsave 
@@ -14,6 +18,8 @@ from skimage import color
 from skimage.feature import blob_dog
 from skimage.color import rgb2gray
 from skimage.draw import circle
+#For UI
+# Tkinter
 if sys.version_info[0] < 3:
     import Tkinter as Tk
 else:
@@ -39,12 +45,12 @@ if s:
 #Read image
 image = imread('snap.jpg')
 #Plot image
-f = Figure(figsize=(6, 4), dpi=100)
+f = Figure(figsize=(6, 3), dpi=100)
 ax = f.add_subplot(111)
 ax.imshow(image)
 ax.set_axis_off()
 
-#Plotting with Tkinter
+#UI with Tkinter
 canvas = FigureCanvasTkAgg(f, master=root)
 canvas.show()
 canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
@@ -53,6 +59,7 @@ toolbar = NavigationToolbar2TkAgg(canvas, root)
 toolbar.update()
 canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
+#Take a picture and count the blobs
 def _snap():
     cam = VideoCapture(0)   # 0 -> index of camera
     s, img = cam.read()
@@ -63,8 +70,8 @@ def _snap():
     ax.imshow(image)
 	#Inverse the grayscale image
     image_gray = 1 - (rgb2gray(image))
-    # Compute the blobs and estimate size
-    blobs_dog = blob_dog(image_gray, max_sigma=30, threshold=.5)
+    #Compute the blobs and estimate size
+    blobs_dog = blob_dog(image_gray, max_sigma=30, threshold=w.get()/100.)
     blobs_dog[:, 2] = blobs_dog[:, 2] * np.sqrt(2)
 	#Plot circles
     i=0
@@ -89,7 +96,7 @@ button_1.pack(side=Tk.BOTTOM)
 button_2 = Tk.Button(master=root, text='Take a picture', command=_snap)
 button_2.pack(side=Tk.BOTTOM)
 #Slider for threshold
-w = Tk.Scale(master=root, from_=0, to=100)
+w = Tk.Scale(master=root, from_=1, to=100)
 w.pack(side=Tk.BOTTOM)
 
 Tk.mainloop()
