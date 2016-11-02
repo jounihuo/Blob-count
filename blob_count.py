@@ -81,7 +81,7 @@ def _snap():
         ax.add_patch(c)
         i=i+1
         ax.annotate(str(i), xy=(2, 2), xytext=(x, y), color=(0.9,0,0.9))
-    ax.annotate('Number of blobs = '+(str(i)), xy=(2, 2), xytext=(20, 40), color=(0.9,0,0.9))	
+    ax.annotate('Number of blobs = '+(str(i)), xy=(2, 2), xytext=(20, 40), color=(0.1,0.1,0.1), backgroundcolor='white')	
     ax.set_axis_off()  
     canvas.show()
 
@@ -96,7 +96,7 @@ button_1.pack(side=Tk.BOTTOM)
 button_2 = Tk.Button(master=root, text='Take a picture', command=_snap)
 button_2.pack(side=Tk.BOTTOM)
 #Slider for threshold
-w = Tk.Scale(master=root, from_=1, to=100)
+w = Tk.Scale(master=root, from_=1, to=100, label='Thershold')
 w.pack(side=Tk.BOTTOM)
 
 Tk.mainloop()
