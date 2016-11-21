@@ -6,57 +6,67 @@ cap = cv2.VideoCapture(0)
 cap.set(3,1920)
 cap.set(4,1080)
 
-#Wheat parameters
-params = cv2.SimpleBlobDetector_Params()
-# Change thresholds
-params.minThreshold = 0
-params.maxThreshold = 100
-# Filter by Area.
-params.filterByArea = True
-params.maxArea = 900
-params.minArea = 300
-# Filter by Circularity
-params.filterByCircularity = True
-params.minCircularity = 0.5
-params.maxCircularity = 1.0
-# Filter by Convexity
-params.filterByConvexity = True
-params.minConvexity = 0.4
-params.maxConvexity = 1.0    
-# Filter by Inertia
-params.filterByInertia = True
-params.minInertiaRatio = 0.1
-params.maxInertiaRatio = 1.0
-# Create a detector with the parameters
-detector = cv2.SimpleBlobDetector_create(params)
+type_parameters = {
+'wheat':     (0, 100, 1000, 400,  0.5, 1.0,  0.4, 1.0,  0.1, 1.00, 1),
+'barley':    (0, 100, 1500, 700,  0.2, 1.0,  0.4, 1.0,  0.1, 1.00, 1),
+'oat':       (0, 100, 2000, 500, 0.01, 1.0, 0.01, 1.0, 0.01, 0.30, 1),
+'rye':       (0, 140, 1300, 300,  0.5, 0.8,  0.1, 1.0, 0.01, 0.30, 1),
+'rape seed': (0, 100,  100,  50,  0.5, 1.0,  0.4, 1.0,  0.1, 1.00, 0)}
 
-#Larger blob parameters
-params2 = cv2.SimpleBlobDetector_Params()
-# Change thresholds
-params2.minThreshold = 0
-params2.maxThreshold = 100
-# Filter by Area.
-params2.filterByArea = True
-params2.maxArea = 2800
-params2.minArea = 900
-# Filter by Circularity
-params2.filterByCircularity = True
-params2.minCircularity = 0.01
-params2.maxCircularity = 1.0
-# Filter by Convexity
-params2.filterByConvexity = True
-params2.minConvexity = 0.1
-params2.maxConvexity = 1.0    
-# Filter by Inertia
-params2.filterByInertia = True
-params2.minInertiaRatio = 0.01
-params2.maxInertiaRatio = 1.0
-# Create a detector with the parameters
-detector2 = cv2.SimpleBlobDetector_create(params2)
+def create_blob_detect(type_parameters):
+    #Function returns a blob detector with given parameters
+    params = cv2.SimpleBlobDetector_Params()
+    # Change thresholds
+    params.minThreshold = type_parameters[0]
+    params.maxThreshold = type_parameters[1]
+    # Filter by Area.
+    params.filterByArea = True
+    params.maxArea = type_parameters[2]
+    params.minArea = type_parameters[3]
+    # Filter by Circularity
+    params.filterByCircularity = True
+    params.minCircularity = type_parameters[4]
+    params.maxCircularity = type_parameters[5]
+    # Filter by Convexity
+    params.filterByConvexity = True
+    params.minConvexity = type_parameters[6]
+    params.maxConvexity = type_parameters[7]   
+    # Filter by Inertia
+    params.filterByInertia = True
+    params.minInertiaRatio = type_parameters[8]
+    params.maxInertiaRatio = type_parameters[9]
+    # Create a detector with the parameters
+    detector = cv2.SimpleBlobDetector_create(params)
+    return detector
 
+def create_not_range_detect(type_parameters):
+    #Function returns a blob detector with out of range parameters
+    params = cv2.SimpleBlobDetector_Params()
+    # Change thresholds
+    params.minThreshold = type_parameters[0]
+    params.maxThreshold = type_parameters[1]
+    # Filter by Area.
+    params.filterByArea = True
+    params.maxArea = type_parameters[2]*5
+    params.minArea = type_parameters[2]
+    # Filter by Circularity
+    params.filterByCircularity = True
+    params.minCircularity = type_parameters[4]
+    params.maxCircularity = type_parameters[5]
+    # Filter by Convexity
+    params.filterByConvexity = True
+    params.minConvexity = type_parameters[6]
+    params.maxConvexity = type_parameters[7]   
+    # Filter by Inertia
+    params.filterByInertia = True
+    params.minInertiaRatio = type_parameters[8]
+    params.maxInertiaRatio = type_parameters[9]
+    # Create a detector with the parameters
+    detector = cv2.SimpleBlobDetector_create(params)
+    return detector
+    
 font = cv2.FONT_HERSHEY_SIMPLEX
 note = 0
-
 current_type = "wheat"
 
 while(True):
@@ -64,11 +74,15 @@ while(True):
     ret, frame = cap.read()
     # Our operations on the frame come here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray = 255 - gray
+    if type_parameters[current_type][10] == 1:
+        gray = 255 - gray
+    #Image rotation of 180 degrees
     rows,cols = gray.shape
     M = cv2.getRotationMatrix2D((cols/2,rows/2),180,1)
     gray = cv2.warpAffine(gray,M,(cols,rows))
+    detector = create_blob_detect(type_parameters[current_type])
     keypoints = detector.detect(gray)
+    detector2 = create_not_range_detect(type_parameters[current_type])
     keypoints2 = detector2.detect(gray)
     gray = cv2.drawKeypoints(gray, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     gray = cv2.drawKeypoints(gray, keypoints2, np.array([]), (0,255,0), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
@@ -83,8 +97,9 @@ while(True):
         cv2.putText(gray,'Saving image...',(10,510), font, 1,(255,0,0),2)
         cv2.imshow('frame',gray)
         note = 0
-    # Display the resulting frame
+    #Display the resulting frame
     cv2.imshow('frame',gray)
+    #User input from keys
     c = cv2.waitKey(1)
     #Change grain type
     if ord('1') == (c & 0xFF):
